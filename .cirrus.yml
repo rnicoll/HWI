@@ -13,7 +13,7 @@ device_matrix_template: &DEVICE_MATRIX_TEMPLATE
     depends_on:
       - Trezor 1 Sim Builder
       - dist_builder
-      - bitcoind_builder
+      - dogecoind_builder
     sim_work_cache:
       folder: test/work/trezor-firmware
       << : *SIM_CACHE_FPR_TEMPLATE
@@ -22,37 +22,16 @@ device_matrix_template: &DEVICE_MATRIX_TEMPLATE
     depends_on:
       - Trezor T Sim Builder
       - dist_builder
-      - bitcoind_builder
+      - dogecoind_builder
     sim_work_cache:
       folder: test/work/trezor-firmware
-      << : *SIM_CACHE_FPR_TEMPLATE
-  - env:
-      DEVICE: --coldcard
-    depends_on:
-      - Coldcard Sim Builder
-      - dist_builder
-      - bitcoind_builder
-    sim_work_cache:
-      folder: test/work/firmware
-      << : *SIM_CACHE_FPR_TEMPLATE
-    sim_install_script:
-      - poetry run pip install -r test/work/firmware/requirements.txt
-      - pip install -r test/work/firmware/requirements.txt
-  - env:
-      DEVICE: --bitbox01
-    depends_on:
-      - Bitbox01 Sim Builder
-      - dist_builder
-      - bitcoind_builder
-    sim_work_cache:
-      folder: test/work/mcu
       << : *SIM_CACHE_FPR_TEMPLATE
   - env:
       DEVICE: --ledger
     depends_on:
       - Ledger Sim Builder
       - dist_builder
-      - bitcoind_builder
+      - dogecoind_builder
     sim_work_cache:
       folder: test/work/speculos
       << : *SIM_CACHE_FPR_TEMPLATE
@@ -64,7 +43,7 @@ device_matrix_template: &DEVICE_MATRIX_TEMPLATE
     depends_on:
       - Keepkey Sim Builder
       - dist_builder
-      - bitcoind_builder
+      - dogecoind_builder
     sim_work_cache:
       folder: test/work/keepkey-firmware
       << : *SIM_CACHE_FPR_TEMPLATE
@@ -83,18 +62,6 @@ sim_build_matrix_template: &SIM_BUILD_MATRIX_TEMPLATE
       folder: test/work/trezor-firmware
       << : *SIM_CACHE_FPR_TEMPLATE
   - env:
-      DEVICE: --coldcard
-    name: Coldcard Sim Builder
-    sim_work_cache:
-      folder: test/work/firmware
-      << : *SIM_CACHE_FPR_TEMPLATE
-  - env:
-      DEVICE: --bitbox01
-    name: Bitbox01 Sim Builder
-    sim_work_cache:
-      folder: test/work/mcu
-      << : *SIM_CACHE_FPR_TEMPLATE
-  - env:
       DEVICE: --ledger
     name: Ledger Sim Builder
     sim_work_cache:
@@ -107,10 +74,10 @@ sim_build_matrix_template: &SIM_BUILD_MATRIX_TEMPLATE
       folder: test/work/keepkey-firmware
       << : *SIM_CACHE_FPR_TEMPLATE
 
-bitcoind_cache_template: &BITCOIND_CACHE_TEMPLATE
-  bitcoind_work_cache:
-    folder: test/work/bitcoin
-    fingerprint_script: echo $CIRRUS_BUILD_ID bitcoind
+dogecoind_cache_template: &BITCOIND_CACHE_TEMPLATE
+  dogecoind_work_cache:
+    folder: test/work/dogecoin
+    fingerprint_script: echo $CIRRUS_BUILD_ID dogecoind
 
 dist_cache_template: &DIST_CACHE_TEMPLATE
   dist_cache:
@@ -159,17 +126,18 @@ wine_builder_task:
     dockerfile: contrib/build.Dockerfile
   build_script:
     - contrib/build_wine.sh
-    - sha256sum dist/*
+    - ls dist/*
+    - sha256sum dist/*.tar.gz ||:
 
-bitcoind_builder_task:
+dogecoind_builder_task:
   << : *BITCOIND_CACHE_TEMPLATE
-  bitcoind_cache:
-    folder: test/work/bitcoin
+  dogecoind_cache:
+    folder: test/work/dogecoin
   ccache_cache:
     folder: /root/.ccache
   env:
     BUILD_BITCOIND: 1
-  build_script: cd test; ./setup_environment.sh --bitcoind; cd ..
+  build_script: cd test; ./setup_environment.sh --dogecoind; cd ..
 
 sim_builder_task:
   matrix:
@@ -183,7 +151,7 @@ dist_builder_task:
   build_script:
     - contrib/build_bin.sh
     - contrib/build_dist.sh
-    - sha256sum dist/*
+    - sha256sum dist/*.tar.gz ||:
 
 dist_test_task:
   matrix:

@@ -153,7 +153,7 @@ def get_parser() -> HWIArgumentParser:
     enumerate_parser.set_defaults(func=enumerate_handler)
 
     getmasterxpub_parser = subparsers.add_parser('getmasterxpub', help='Get the extended public key for BIP 44 standard derivation paths. Convenience function to get xpubs given the address type, account, and chain type.')
-    getmasterxpub_parser.add_argument("--addr-type", help="Get the master xpub used to derive addresses for this address type", type=AddressType.argparse, choices=list(AddressType), default=AddressType.WIT) # type: ignore
+    getmasterxpub_parser.add_argument("--addr-type", help="Get the master xpub used to derive addresses for this address type", type=AddressType.argparse, choices=list(AddressType), default=AddressType.LEGACY) # type: ignore
     getmasterxpub_parser.add_argument("--account", help="The account number", type=int, default=0)
     getmasterxpub_parser.set_defaults(func=getmasterxpub_handler)
 
@@ -170,16 +170,16 @@ def get_parser() -> HWIArgumentParser:
     signmsg_parser.add_argument('path', help='The BIP 32 derivation path of the key to sign the message with')
     signmsg_parser.set_defaults(func=signmessage_handler)
 
-    getkeypool_parser = subparsers.add_parser('getkeypool', help='Get JSON array of keys that can be imported to Bitcoin Core with importmulti')
+    getkeypool_parser = subparsers.add_parser('getkeypool', help='Get JSON array of keys that can be imported to Dogecoin Core with importmulti')
     kparg_group = getkeypool_parser.add_mutually_exclusive_group()
     kparg_group.add_argument('--keypool', action='store_true', dest='keypool', help='Indicates that the keys are to be imported to the keypool', default=True)
     kparg_group.add_argument('--nokeypool', action='store_false', dest='keypool', help='Indicates that the keys are not to be imported to the keypool', default=False)
     getkeypool_parser.add_argument('--internal', action='store_true', help='Indicates that the keys are change keys')
     kp_type_group = getkeypool_parser.add_mutually_exclusive_group()
-    kp_type_group.add_argument("--addr-type", help="The address type (and default derivation path) to produce descriptors for", type=AddressType.argparse, choices=list(AddressType), default=AddressType.WIT) # type: ignore
-    kp_type_group.add_argument('--all', action='store_true', help='Generate addresses for all standard address types (default paths: ``m/{44,49,84}h/0h/0h/[0,1]/*)``')
+    kp_type_group.add_argument("--addr-type", help="The address type (and default derivation path) to produce descriptors for", type=AddressType.argparse, choices=list(AddressType), default=AddressType.LEGACY) # type: ignore
+    kp_type_group.add_argument('--all', action='store_true', help='Generate addresses for all standard address types (default paths: ``m/{44,49,84}h/3h/0h/[0,1]/*)``')
     getkeypool_parser.add_argument('--account', help='BIP43 account', type=int, default=0)
-    getkeypool_parser.add_argument('--path', help='Derivation path, default follows BIP43 convention, e.g. ``m/84h/0h/0h/1/*`` with --addr-type wpkh --internal. If this argument and --internal is not given, both internal and external keypools will be returned.')
+    getkeypool_parser.add_argument('--path', help='Derivation path, default follows BIP43 convention, e.g. ``m/84h/3h/0h/1/*`` with --addr-type wpkh --internal. If this argument and --internal is not given, both internal and external keypools will be returned.')
     getkeypool_parser.add_argument('start', type=int, help='The index to start at.')
     getkeypool_parser.add_argument('end', type=int, help='The index to end at.')
     getkeypool_parser.set_defaults(func=getkeypool_handler)
@@ -190,9 +190,9 @@ def get_parser() -> HWIArgumentParser:
 
     displayaddr_parser = subparsers.add_parser('displayaddress', help='Display an address')
     group = displayaddr_parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--desc', help='Output Descriptor. E.g. wpkh([00000000/84h/0h/0h]xpub.../0/0), where 00000000 must match --fingerprint and xpub can be obtained with getxpub. See doc/descriptors.md in Bitcoin Core')
-    group.add_argument('--path', help='The BIP 32 derivation path of the key embedded in the address, default follows BIP43 convention, e.g. ``m/84h/0h/0h/1/*``')
-    displayaddr_parser.add_argument("--addr-type", help="The address type to display", type=AddressType.argparse, choices=list(AddressType), default=AddressType.WIT) # type: ignore
+    group.add_argument('--desc', help='Output Descriptor. E.g. wpkh([00000000/84h/3h/0h]xpub.../0/0), where 00000000 must match --fingerprint and xpub can be obtained with getxpub. See doc/descriptors.md in Dogecoin Core')
+    group.add_argument('--path', help='The BIP 32 derivation path of the key embedded in the address, default follows BIP43 convention, e.g. ``m/84h/3h/0h/1/*``')
+    displayaddr_parser.add_argument("--addr-type", help="The address type to display", type=AddressType.argparse, choices=list(AddressType), default=AddressType.LEGACY) # type: ignore
     displayaddr_parser.set_defaults(func=displayaddress_handler)
 
     setupdev_parser = subparsers.add_parser('setup', help='Setup a device. Passphrase protection uses the password given by -p. Requires interactive mode')

@@ -26,18 +26,16 @@ while [[ $# -gt 0 ]]; do
         build_keepkey=1
         shift
         ;;
-        --bitcoind)
-        build_bitcoind=1
+        --dogecoind)
+        build_dogecoind=1
         shift
         ;;
         --all)
         build_trezor_1=1
         build_trezor_t=1
-        build_coldcard=1
-        build_bitbox01=1
         build_ledger=1
         build_keepkey=1
-        build_bitcoind=1
+        build_dogecoind=1
         shift
         ;;
     esac
@@ -242,15 +240,16 @@ if [[ -n ${build_ledger} ]]; then
     cd ..
 fi
 
-if [[ -n ${build_bitcoind} ]]; then
-    # Clone bitcoind if it doesn't exist, or update it if it does
-    bitcoind_setup_needed=false
-    if [ ! -d "bitcoin" ]; then
-        git clone https://github.com/bitcoin/bitcoin.git
-        cd bitcoin
-        bitcoind_setup_needed=true
+if [[ -n ${build_dogecoind} ]]; then
+    # Clone dogecoind if it doesn't exist, or update it if it does
+    dogecoind_setup_needed=false
+    if [ ! -d "dogecoin" ]; then
+        git clone https://github.com/rnicoll/dogecoin.git
+        cd dogecoin
+	git checkout 1.21-post-auxpow-branding
+        dogecoind_setup_needed=true
     else
-        cd bitcoin
+        cd dogecoin
         git fetch
 
         # Determine if we need to pull. From https://stackoverflow.com/a/3278427
@@ -263,14 +262,14 @@ if [[ -n ${build_bitcoind} ]]; then
             echo "Up-to-date"
         elif [ $LOCAL = $BASE ]; then
             git pull
-            bitcoind_setup_needed=true
+            dogecoind_setup_needed=true
         fi
     fi
 
-    # Build bitcoind. This is super slow, but it is cached so it runs fairly quickly.
-    if [ "$bitcoind_setup_needed" == true ] ; then
+    # Build dogecoind. This is super slow, but it is cached so it runs fairly quickly.
+    if [ "$dogecoind_setup_needed" == true ] ; then
         ./autogen.sh
         ./configure --with-incompatible-bdb --with-miniupnpc=no --without-gui --disable-zmq --disable-tests --disable-bench --with-libs=no --with-utils=no
     fi
-    make src/bitcoind
+    make src/dogecoind
 fi
